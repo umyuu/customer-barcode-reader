@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ja" dir="ltr">
+<head>
+	<meta charset="UTF-8"><meta name="referrer" content="unsafe-url" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Customer BarcodeReader Sample</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+	<style>
+	@media screen and (max-width=500) {
+	}
+
+.inline {
+	display: inline-block;
+}
+
+	/* header */
+	header {
+    	position: sticky;
+    	margin-top: 0px;
+    	top: 0;
+    	background: #b7c8c2;
+    	color: #fff;
+    }
+
+	/* main */
+	main {
+    	margin-top: 1rem;
+    	display: flex;
+    	flex-direction: column;
+    	min-height: 100vh;
+	}
+	main .file-open {
+    	font-family: 'Material Icons';
+    	content: '\eaf3';
+		margin: 4px;
+    }
+	main #imageFile::before, main .file-open {
+    	font-family: 'Material Icons';
+    	content: '\eaf3';
+		margin: 4px;
+    }
+
+	main #imageScale::before {
+    	font-family: 'Material Icons';
+    	content: '\e8ff';
+    	margin: 4px;
+    }
+
+	main #imageScale::affter {
+    	font-family: 'Material Icons';
+    	content: '\e8ff';
+    	margin: 4px;
+    }
+
+	/* footer */
+	footer {
+        	position: sticky;
+        	bottom: 0;
+        	margin-top: auto;
+        	z-index: 99;
+        	height: 40px;
+			width: 95%;
+			max-width: 95%;
+	}
+
+	footer #btnCrop::before {
+		font-family: 'Material Icons';
+		content: '\f85c';
+		margin: 4px;
+	}
+
+	footer #btnCrop {
+		display: block;
+		height: 40%;
+		width: 95%;
+		max-width: 95%;
+		margin: 0 auto;
+		background: orange;
+		border-radius: 8px;
+	}
+
+	footer #btnCopy::before {
+		font-family: 'Material Icons';
+		content: '\e14d';
+		margin: 4px;
+	}
+
+	footer #btnCopy {
+		display: block;
+		height: 40%;
+		width: 95%;
+		max-width: 95%;
+		margin: 0 auto;
+		background: orange;
+		border-radius: 8px;
+	}
+
+	/* accordion */
+	.accordion-item {
+    	max-width: 95%;
+    	background-color: #f0f5f9;
+	}
+
+	.accordion-item:not([open]) {
+    	margin-bottom: 8px;
+	}
+
+	.accordion-item summary {
+    	display: flex;
+    	justify-content: space-between;
+   		align-items: center;
+    	position: relative;
+    	padding: 1em 1em;
+    	border-radius: 8px;
+    	background-color: #b7c8c2;
+    	color: #fff;
+    	font-weight: 600;
+    	cursor: pointer;
+	}
+
+	.accordion-item summary::-webkit-details-marker {
+    	display: none;
+	}
+
+	.accordion-item summary::after {
+    	transform: translateY(-25%) rotate(45deg);
+    	width: 8px;
+    	height: 8px;
+		margin-left: 16px;
+		border-bottom: 4px solid #fff;
+		border-right: 4px solid #fff;
+		content: '';
+		transition: transform .3s;
+	}
+
+	.accordion-item[open] summary::after {
+    	transform: rotate(225deg);
+	}
+
+	.accordion-item p:last-of-type {
+    	transform: translateY(-10px);
+    	opacity: 0;
+    	margin: 0;
+    	padding: 1em 2em 2em 2em;
+    	color: #333333;
+    	transition: transform .5s, opacity .5s;
+	}
+
+	.accordion-item[open] p:last-of-type {
+    	transform: none;
+    	opacity: 1;
+	}
+	</style>
+</head>
+<body id="site">
+	<header>
+		<h1>Customer BarcodeReader Sample</h1>
+	</header>
+	<main>
+		<section>
+			<h2><strong>⚠⚠開発中です動作しません。</strong><h2>
+			<p>内容は一切、外部に送信しておりません。</p>
+		</section>
+		<section>
+			<h2>使用方法</h2>
+			<details class="accordion-item">
+    			<summary>操作説明及び注意事項</summary>
+    			<p>1, 画像ファイル<span class="file-open">を選択します。</span><br>2, 読み取りボタンをタップします。<br>3. コピーボタンをタップし、バーコードをコピーします。<br></p>
+			</details>
+			<details class="accordion-item">
+    			<summary>技術者向け</summary>
+    			<p>ブラウザで処理が完結しています。<br></p>
+			</details>
+    	</section>
+    <p><label for="imageFile"></label>
+    <input id="imageFile" type="file" accept="image/*"/></p>
+    <img id="img" alt=""/><br>
+    <label for="imageScale">倍率</label>
+    <input id="imageScale" type="range" value="100" min="20" max="500" step="any" list="scales"><br>
+    <datalist id="scales">
+       <option value="20"></option>
+       <option value="100"></option>
+       <option value="200"></option>
+       <option value="300"></option>
+       <option value="400"></option>
+       <option value="500"></option>
+    </datalist>
+
+    
+    <div id="status">
+      <div id="mouse">0, 0
+      <div class="result">
+        <span class="title">Barcode Text</span>
+        <span id="result"></span>
+      </div>
+    </div>
+    <div id="overlay"></div>
+    <div id="content" width="480">
+      <canvas id="bg-layer" class="background-layer"  height="640"></canvas>
+      <canvas id="crop-layer"  height="40"></canvas>
+    </div>
+    <style>
+
+      #img {
+	      max-width: 100vw;
+	      height: auto;
+        /*display: inline;*/
+        display: none;
+      }
+      #imageScale {
+        width: 100vw;
+      }
+
+        input[type="button"] {
+          padding: 5px;
+          width: 30px;
+          margin: 0px 0px 2px 0px;
+        }
+
+      #content {
+        position:relative;
+      }
+      #overlay { z-index: 3; position: absolute; border: 2px solid #F00; }
+      .background-layer { z-index: 1; position: absolute;}
+      #bg-layer {
+          z-index: 1;
+          position: absolute;
+          border: 1px solid #9C9898;
+          width: auto;
+      }
+      #crop-layer {
+        z-index: 3;
+        margin-left: 1rem;
+        margin-right: 1rem;
+        position: absolute;
+        border: 2px solid #F00;
+        width: auto;
+      }
+    </style>
+
+  </main>
+  <aside>
+  </aside>
+	<footer>
+		<p><button id="btnCrop">読み取り</button></p>
+		<p id="aaaaaa">AAAAAA</p>
+		<section>
+		<h3>BarCodeText:<h3>
+
+		</section>
+		<p><button id="btnCopy">コピー</button></p>
+　　　　<p><span id="copy-message"></span></p>
+	</footer>
+  <script>
+	"use strict";
+	const drawRectA = (data, i) => {
+		return data[i] * 0.2126 + data[i + 1] * 0.7152 + data[i + 2] * 0.0722;
+	}
+
+	const copyToClipboard = (e) => {
+		//const content = e.target.textContent;
+
+        const content = document.querySelector('#result').textContent;
+    	navigator.clipboard.writeText(content).then(() => {
+            console.log("Success!" + content);
+			document.getElementById('copy-message').textContent = 'コピー成功しました！';
+            setTimeout(() => {
+				document.getElementById('copy-message').textContent = '';
+            }, 3000);
+        },
+        () => {
+			console.log("Ops, something went wrong...");
+			document.getElementById('copy-message').textContent = 'コピー失敗しました！';
+        });
+	};
+
+	document.querySelector('#btnCopy').addEventListener('click', copyToClipboard);
+
+	window.addEventListener("DOMContentLoaded", () => {
+    
+
+
+    /**
+     * 画像のフィルター処理
+     */
+    let imageFilter = new class {
+      /**
+       * グレースケール変換をします。
+       * @param {ImageData} imageData
+       */
+      GrayScale(imageData) {
+
+		const data = imageData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const grayScale = (data[i] * 0.2126 + data[i + 1] * 0.7152 + data[i + 2] * 0.0722);
+
+          data[i] = grayScale; // red
+          data[i + 1] = grayScale; // green
+          data[i + 2] = grayScale; // blue
+        }
+      }
+
+      Binarization2(imageData) {
+        const data = imageData.data;
+        let dv = new DataView(imageData.data);
+
+        for (let aa = 0; aa < dv.byteLength; aa += 4) {
+          const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+          let ss = dv.getUint32() / 3;
+        }
+
+        for (let i = 0; i < data.length; i += 4) {
+          const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+
+          if (avg > 127) {
+            data[i] = 255; // red
+            data[i + 1] = 255; // green
+            data[i + 2] = 255; // blue
+          } else {
+            data[i] = 0; // red
+            data[i + 1] = 0; // green
+            data[i + 2] = 0; // blue
+          }
+        }
+      }
+
+      /**
+       * 白黒化します。
+       * @param {ImageData} imageData
+       */
+      Binarization(imageData) {
+        const data = imageData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+
+          if (avg > 127) {
+            data[i] = 255; // red
+            data[i + 1] = 255; // green
+            data[i + 2] = 255; // blue
+          } else {
+            data[i] = 0; // red
+            data[i + 1] = 0; // green
+            data[i + 2] = 0; // blue
+          }
+        }
+      }
+    };
+
+    /**
+     * バーコード解析
+     */
+    let barcode = new class {
+      constructor() {
+      }
+      /**
+       * バーコード検出します。
+       * @param {ImageData} imageData
+       */
+      detect(imageData) {
+        if (!imageData) {
+          console.error("detect:image none");
+          return "";
+        }
+
+        var sum = 0;
+        const data = imageData.data;
+        for (let i = 0; i < data.length; i += 4) {
+          let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+          sum += avg;
+        }
+        //console.log(sum);
+        return "";
+      }
+    };
+
+    const canvas = document.querySelector('#bg-layer');
+    const slider = document.querySelector('#imageScale');
+    const crop = document.querySelector('#crop-layer');
+
+    let x, y, relX, relY;
+      let objWidth = 50;
+      let objHeight = 50;
+      let dragging = false;
+      let objX = canvas.width / 2 - objWidth / 2;
+      let objY = canvas.height / 2 - objHeight / 2;
+
+let startDragOffset = {
+  x:0,
+  y:0
+};
+const drawRect = (topLeft, bottomRight) => {
+  const { x: x1, y: y1 } = topLeft;
+  const { x: x2, y: y2 }= bottomRight;
+
+  const overlay = document.querySelector('#overlay');
+  overlay.style.left = `${x1}px`;
+  overlay.style.top =`${y1}px`;
+  overlay.style.width = `${x2 - x1}px`;
+  overlay.style.height =`${y2 - y1}px`;
+};
+
+let move = (e) => {
+  let rect = e.target.getBoundingClientRect() ;
+  x = e.clientX - rect.left;
+  y = e.clientY - rect.top;
+  draw();
+}
+
+const CropRect = {left : (canvas.width - crop.width)/2,
+                  top : (canvas.height- crop.height)/2,
+                  width : crop.width,
+                  height : crop.height,
+                };
+let pos = { x: 0, y: 0};
+
+/**
+ * メインビュー
+ * @see https://developer.mozilla.org/ja/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas
+ */
+let mainView = new class {
+  constructor() {
+    this.bg = document.querySelector('#bg-layer');
+    this.result = document.querySelector('#result');
+    this.scale = 1.0; // 拡大率
+
+    this.dragInfo = {
+      isDragging: false,
+      startX: 0,
+      startY: 0,
+      diffX: 0,
+      diffY: 0,
+      canvasX: 0,
+      canvasY: 0
+    };
+  }
+
+  /**
+   * 描画します。
+   */
+  render() {
+    this.scale = slider.value * 0.01;
+
+    this.drawCanvas();
+
+    let imageData = this.cropImage();
+    let barcodeValue = barcode.detect(imageData);
+    this.result.innerHTML = barcodeValue;
+    this.result.innerHTML = "##############";
+  }
+  dragStart(e) {
+    mainView.dragInfo.isDragging = true;
+    mainView.dragInfo.startX = e.clientX;
+    mainView.dragInfo.startY = e.clientY;
+  }
+    /**
+   * ドラッグで画像を移動する
+   * @param {MouseEvent} e マウスイベント
+   * @return {void}
+   */
+   drag(e) {
+    if (mainView.dragInfo.isDragging) {
+      // 開始位置 + 差分 / スケール （画像の大きさによる移動距離の補正のためスケールで割る）
+      [mainView.dragInfo.diffX, mainView.dragInfo.diffY] = [ mainView.dragInfo.canvasX + (e.clientX - mainView.dragInfo.startX) / mainView.scale
+               ,mainView.dragInfo.canvasY + (e.clientY - mainView.dragInfo.startY) / mainView.scale];
+
+       mainView.render();
+    }
+   }
+  /**
+   * ドラッグ終了
+   * @param {MouseEvent} e マウスイベント
+   * @return {void}
+   */
+  dragEnd(e) {
+    mainView.dragInfo.isDragging = false;
+    // mousedown時のカクつきをなくすため
+    [mainView.dragInfo.canvasX, mainView.dragInfo.canvasY] = [mainView.dragInfo.diffX, mainView.dragInfo.diffY];
+  }
+  /**
+   * Canvasを描画します。
+   */
+  drawCanvas() {
+    //drawRect(this.bg.width , this.bg.height);
+    //console.log("drawCanvas");
+    const ctx = canvas.getContext('2d');
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+    ctx.beginPath(); //必須
+    // 倍率変更
+    const scale = slider.value * 0.01;
+    ctx.scale(scale, scale);
+    //console.log(scale);
+    //ctx.drawImage(img, this.dragInfo.diffX, this.dragInfo.diffY);
+    //ctx.drawImage(img, objX, objY);
+    ctx.drawImage(img, 0, 0);
+    ctx.scale(1 / scale, 1 / scale);
+
+    ctx.strokeStyle = 'rgba(200, 0, 0, 0.8)'; // 赤い枠
+    //ctx.strokeRect(CropRect.left, CropRect.top, CropRect.width, CropRect.height);
+  }
+
+  /**
+   * 画像を切り出します。
+   */
+  cropImage() {
+    const ctx = crop.getContext('2d', { alpha: false });
+
+    ctx.beginPath();
+    ctx.fillStyle = 'gray';
+    ctx.fillRect(0, 0, crop.width, crop.height);
+
+    let rect = {
+      left: (crop.width/2) - pos.x * mainView.scale,
+      top: (crop.height/2)- pos.y * mainView.scale,
+      width :img.width * mainView.scale,
+      height : img.height * mainView.scale,
+    };
+    ctx.drawImage(img, 0, 0, img.width, img.height, rect.left, rect.top, rect.width, rect.height);
+
+    //ctx.drawImage( img, 0, 0, img.width, img.height, CropRect.left, CropRect.top, CropRect.width, CropRect.height);
+    //console.log("rect:", rect);
+    //console.log("CropRect:", CropRect);
+    let imageData = ctx.getImageData(0, 0, crop.width, crop.height);
+    imageFilter.GrayScale(imageData);
+    imageFilter.Binarization(imageData);
+
+    ctx.putImageData(imageData, 0, 0);
+
+    return imageData;
+  }
+};
+
+
+
+  slider.addEventListener('input', (e) => {
+    const scale = e.target.value;
+    if (scale != null) {
+
+      mainView.render();
+      return;
+    }
+  });
+
+  document.querySelector('#imageFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/'))
+    { 
+      alert('画像をアップロードしてください');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const image = document.querySelector('#img');
+
+      image.src = e.target.result;
+      image.decode().then(() => {
+        [pos.x, pos.y]  = [image.width / 2, image.height / 2];
+
+        mainView.render();
+      });
+    };
+
+    reader.readAsDataURL(file);
+  }, false);
+
+  let translatePos = {
+    left: canvas.width / 2,
+    top: canvas.height / 2
+  };
+
+ //canvas.addEventListener('mousedown', mainView.dragStart.bind(this), false);
+ // canvas.addEventListener('mousemove', mainView.drag.bind(this), false);
+ // canvas.addEventListener('mouseup', mainView.dragEnd.bind(this), false);
+  let scaleMultiplier = 0.8;
+
+  let mouseDown = false;
+
+
+      function onDown(e) {
+        var offsetX = canvas.getBoundingClientRect().left;
+        var offsetY = canvas.getBoundingClientRect().top;
+
+        x = e.clientX - offsetX;
+        y = e.clientY - offsetY;
+
+        if (objX < x && (objX + objWidth) > x && objY < y && (objY + objHeight) > y) {
+          dragging = true;
+          relX = objX - x;
+          relY = objY - y;
+        }
+      }
+
+      function onMove(e) {
+        var offsetX = canvas.getBoundingClientRect().left;
+        var offsetY = canvas.getBoundingClientRect().top;
+
+        x = e.clientX - offsetX;
+        y = e.clientY - offsetY;
+
+        if (dragging) {
+          objX = x + relX;
+          objY = y + relY;
+          mainView.render();
+        }
+      }
+
+      function onUp(e) {
+        dragging = false;
+      }
+      //canvas.addEventListener('mousedown', onDown, false);
+      //canvas.addEventListener('mousemove', onMove, false);
+      //canvas.addEventListener('mouseup', onUp, false);
+
+  // add event listeners to handle screen drag
+  canvas.addEventListener("mousedown", (evt) => {
+    mouseDown = true;
+    console.log("mousedown");
+    let rect = evt.target.getBoundingClientRect();
+    startDragOffset.x = evt.clientX - translatePos.left;
+    startDragOffset.y = evt.clientY - translatePos.top;
+    //mainView.render();
+  });
+
+  canvas.addEventListener("mouseup", (evt) => {
+    mouseDown = false;
+  });
+
+  canvas.addEventListener("mouseover", (evt) => {
+    mouseDown = false;
+  });
+
+  canvas.addEventListener("mouseout", (evt) => {
+    mouseDown = false;
+  });
+
+  canvas.addEventListener("mousemove", (evt) => {
+    //mainView.render()
+    if (mouseDown) {
+
+      translatePos.x = evt.clientX - startDragOffset.x;
+      translatePos.y = evt.clientY - startDragOffset.y;
+    }
+  });
+
+  mainView.render();
+}, false);
+
+  </script>
+</body>
+</html>
