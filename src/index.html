@@ -26,6 +26,10 @@
     	background: #b7c8c2;
     	color: #fff;
     }
+	header h1 {
+		width: 95%;
+		font-size: 1em;
+	}
 
 	/* main */
 	main {
@@ -110,13 +114,55 @@
 
 	/* footer */
 	footer {
+  		background-color: purple;
 		position: sticky;
         bottom: 0;
-        margin-top: auto;
-        z-index: 99;
-        height: 40px;
+        margin: 0 auto;
+        z-index: 999;
+        height: 4.5em;
 		width: 95%;
 		max-width: 95%;
+	}
+
+	footer section:first-of-type {
+		height: 1.5em;
+		min-height: 1em;
+		line-height: 1.5em;
+	}
+
+	footer section:first-of-type {
+		height: 1.5em;
+		min-height: 1em;
+		line-height: 1.5em;
+	}
+
+	footer section:last-of-type {
+		display: grid;
+		height: 3em;
+		grid-template-columns: 96px 96px 96px;
+	}
+
+	footer button {
+		line-height: 3em;
+		background: orange;
+		border-radius: 8px;
+		margin: 0 auto;
+	}
+
+	footer #btnMenu::before {
+		font-family: 'Material Icons';
+		content: '\e5d2';
+		margin: 4px;
+	}
+	footer summary {
+		list-style: none;
+		/* display: inline-block; */
+		display: none;
+		line-height: 3em;
+		background: orange;
+		border-radius: 8px;
+		width: 96px;
+		margin: 0 auto;
 	}
 
 	footer #btnCrop::before {
@@ -125,32 +171,10 @@
 		margin: 4px;
 	}
 
-	footer #btnCrop {
-		display: block;
-		height: 40%;
-		width: 95%;
-		max-width: 95%;
-		margin: 0 auto;
-		background: orange;
-		border-radius: 8px;
-	}
-
 	footer #btnCopy::before {
 		font-family: 'Material Icons';
 		content: '\e14d';
 		margin: 4px;
-		height: 64px;
-		width: 64px;
-	}
-
-	footer #btnCopy {
-		display: block;
-		height: 64px;
-		width: 95%;
-		max-width: 95%;
-		margin: 0 auto;
-		background: orange;
-		border-radius: 8px;
 	}
 
 	/* accordion */
@@ -251,35 +275,40 @@
     </datalist>
 
     
-    <div id="status">
-      <div id="mouse">0, 0
-      <div class="result">
-        <span class="title">Barcode Text</span>
-        <span id="result"></span>
-      </div>
-    </div>
+
     <div id="overlay"></div>
     <div id="content" width="480">
       <canvas id="bg-layer" class="background-layer"  height="640"></canvas>
       <canvas id="crop-layer"  height="40"></canvas>
     </div>
     <style>
+/* class="accordion-item"
 
-
+		display: inline-block;*/
     </style>
 
   </main>
   <aside>
   </aside>
 	<footer>
-		<p><button id="btnCrop">読み取り</button></p>
-		<p id="aaaaaa">AAAAAA</p>
+		<section id="status-bar">
+			<p>Barcode Text</p>
+			<p><span id="mouse">0, 0</span> <span id="result" class="result"></span></p>
+			<p><span id="copy-message"></span></p>
+		</section><!-- status-bar -->
+			<details id="subMenu">
+			<summary>メニュー</summary>
+			<ul>
+	  			<li>A-1</li>
+	  			<li>A-2</li>
+	  			<li>A-3</li>
+			</ul>
+			</details>
 		<section>
-		<h3>BarCodeText:<h3>
-
+			<button id="btnMenu">メニュー</button>
+			<button id="btnCrop">読み取り</button>
+			<button id="btnCopy">コピー</button>
 		</section>
-		<p><button id="btnCopy">コピー</button></p>
-　　　　<p><span id="copy-message"></span></p>
 	</footer>
   <script>
 	"use strict";
