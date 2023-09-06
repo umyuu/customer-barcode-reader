@@ -31,6 +31,15 @@
 		font-size: 1em;
 	}
 
+
+	#menu {
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-start;
+	}
+
+
+
 	/* main */
 	main {
     	margin-top: 1rem;
@@ -38,6 +47,7 @@
     	flex-direction: column;
     	min-height: 100vh;
         z-index: 50;
+		width: 100vw;
 	}
 
 	main .file-open {
@@ -82,6 +92,7 @@
 
 	#content {
 		position:relative;
+		width: 98%;
 	}
 	
 	#overlay { 
@@ -136,20 +147,14 @@
 		line-height: 1.5em;
 	}
 
-	footer section:last-of-type {
-		display: grid;
-		height: 3em;
-		grid-template-columns: 96px 96px 96px;
-	}
-
-	footer button {
+	#menu button {
 		line-height: 3em;
 		background: orange;
 		border-radius: 8px;
 		margin: 0 auto;
 	}
 
-	footer #btnMenu::before {
+	#menu #btnMenu::before {
 		font-family: 'Material Icons';
 		content: '\e5d2';
 		margin: 4px;
@@ -165,13 +170,13 @@
 		margin: 0 auto;
 	}
 
-	footer #btnCrop::before {
+	#menu #btnCrop::before {
 		font-family: 'Material Icons';
 		content: '\f85c';
 		margin: 4px;
 	}
 
-	footer #btnCopy::before {
+	#menu #btnCopy::before {
 		font-family: 'Material Icons';
 		content: '\e14d';
 		margin: 4px;
@@ -239,9 +244,15 @@
 
 	</style>
 </head>
-<body id="site">
+<body id="app">
 	<header>
 		<h1>Customer BarcodeReader Sample</h1>
+		<section id="menu">
+			<button id="btnMenu">メニュー</button>
+			<button id="btnFileOpen">ファイルを開く</button>
+			<button id="btnCrop">読み取り</button>
+			<button id="btnCopy">コピー</button>
+		</section>
 	</header>
 	<main>
 		<section>
@@ -260,6 +271,7 @@
 			</details>
     	</section>
 	<hr />
+	<section>
     <p><label for="imageFile"></label>
     <input id="imageFile" type="file" accept="image/*"/></p>
     <img id="img" alt=""/><br>
@@ -277,10 +289,11 @@
     
 
     <div id="overlay"></div>
-    <div id="content" width="480">
+    <div id="content" >
       <canvas id="bg-layer" class="background-layer"  height="640"></canvas>
       <canvas id="crop-layer"  height="40"></canvas>
     </div>
+	</section>
     <style>
 /* class="accordion-item"
 
@@ -304,11 +317,7 @@
 	  			<li>A-3</li>
 			</ul>
 			</details>
-		<section>
-			<button id="btnMenu">メニュー</button>
-			<button id="btnCrop">読み取り</button>
-			<button id="btnCopy">コピー</button>
-		</section>
+
 	</footer>
   <script>
 	"use strict";
@@ -337,7 +346,7 @@
 
 	window.addEventListener("DOMContentLoaded", () => {
     
-
+	
 
     /**
      * 画像のフィルター処理
@@ -406,33 +415,34 @@
         }
       }
     };
-
+    
     /**
      * バーコード解析
      */
     let barcode = new class {
-      constructor() {
-      }
-      /**
-       * バーコード検出します。
-       * @param {ImageData} imageData
-       */
-      detect(imageData) {
-        if (!imageData) {
-          console.error("detect:image none");
-          return "";
-        }
+		constructor() {
+		}
+		/**
+		* バーコード検出します。
+		* @param {ImageData} imageData
+		*/
+		async detect(imageData) {
+			if (!imageData) {
+				console.error("detect:image none");
+				return "";
+			}
 
-        var sum = 0;
-        const data = imageData.data;
-        for (let i = 0; i < data.length; i += 4) {
-          let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-          sum += avg;
-        }
-        //console.log(sum);
-        return "";
-      }
-    };
+			var sum = 0;
+			const data = imageData.data;
+			for (let i = 0; i < data.length; i += 4) {
+				let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+				sum += avg;
+			}
+			//console.log(sum);
+
+			return sum;
+		}
+	};
 
     const canvas = document.querySelector('#bg-layer');
     const slider = document.querySelector('#imageScale');
@@ -502,11 +512,12 @@ let mainView = new class {
     this.scale = slider.value * 0.01;
 
     this.drawCanvas();
-
-    let imageData = this.cropImage();
-    let barcodeValue = barcode.detect(imageData);
-    this.result.innerHTML = barcodeValue;
-    this.result.innerHTML = "##############";
+	(async () => {
+	    let imageData = this.cropImage();
+    	let barcodeValue = await barcode.detect(imageData);
+    	this.result.innerHTML = barcodeValue;
+    	this.result.innerHTML = "##############";
+	})();
   }
   dragStart(e) {
     mainView.dragInfo.isDragging = true;
