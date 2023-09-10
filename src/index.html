@@ -157,7 +157,8 @@
       margin-left: 1rem;
       margin-right: 1rem;
       position: absolute;
-      border: 2px solid #F00;
+      border: 4px solid #F00;
+      border-radius: 8px;
       width: auto;
     }
     
@@ -426,39 +427,37 @@
           }
         };
         
+        /**
+        * バーコード解析
+        */
+        let barcode = new class {
+          constructor() {
+          }
+          /**
+          * バーコード検出します。
+          * @param {ImageData} imageData
+          */
+          async detect(imageData) {
+            if (!imageData) {
+              console.error("detect:image none");
+              return "";
+            }
+            
+            var sum = 0;
+            const data = imageData.data;
+            for (let i = 0; i < data.length; i += 4) {
+              let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+              sum += avg;
+            }
+            //console.log(sum);
+            
+            return sum;
+          }
+        };
+        
         window.addEventListener("DOMContentLoaded", () => {
           
           document.querySelector('#btnCopy').addEventListener('click', copyToClipboard);
-          
-          
-          
-          /**
-          * バーコード解析
-          */
-          let barcode = new class {
-            constructor() {
-            }
-            /**
-            * バーコード検出します。
-            * @param {ImageData} imageData
-            */
-            async detect(imageData) {
-              if (!imageData) {
-                console.error("detect:image none");
-                return "";
-              }
-              
-              var sum = 0;
-              const data = imageData.data;
-              for (let i = 0; i < data.length; i += 4) {
-                let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                sum += avg;
-              }
-              //console.log(sum);
-              
-              return sum;
-            }
-          };
           
           const canvas = document.querySelector('#bg-layer');
           const slider = document.querySelector('#imageScale');
@@ -573,6 +572,7 @@
               //console.log("drawCanvas");
               const ctx = canvas.getContext('2d');
               
+              ctx.reset();
               ctx.clearRect(0, 0, canvas.width, canvas.height);
               
               ctx.beginPath(); //必須
@@ -586,6 +586,7 @@
               ctx.scale(1 / scale, 1 / scale);
               
               ctx.strokeStyle = 'rgba(200, 0, 0, 0.8)'; // 赤い枠
+
               //ctx.strokeRect(CropRect.left, CropRect.top, CropRect.width, CropRect.height);
             }
             
@@ -593,7 +594,10 @@
             * 画像を切り出します。
             */
             cropImage() {
-              const ctx = crop.getContext('2d', { alpha: false });
+              const ctx = crop.getContext('2d', {
+                alpha: false,
+                willReadFrequently:true,
+              });
               
               ctx.beginPath();
               ctx.fillStyle = 'gray';
