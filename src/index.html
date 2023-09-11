@@ -43,7 +43,7 @@
     
     header h1 {
       width: 95%;
-      font-size: 1em;
+      font-size: 1rem;
     }
     
     /*
@@ -74,6 +74,11 @@
       content: '\eaf3';
       margin: 4px;
     }
+
+    #menu input[type="file"] {
+      display: none;
+    }
+
     #menu #btnCrop::before {
       font-family: 'Material Icons';
       content: '\f85c';
@@ -279,7 +284,8 @@
     <h1>Customer BarcodeReader Sample</h1>
     <section id="menu">
       <button id="btnMenu" type="button" class="icon">メニュー</button>
-      <button id="btnFileOpen" type="button" class="icon">ファイルを開く</button>
+      <button id="btnFileOpen" type="button" class="icon">ファイルを選択</button>
+      <input id="imageFile" type="file" accept="image/*"/>
       <button id="btnCrop" type="button" class="icon">読み取り</button>
       <button id="btnCopy" type="button" class="icon">コピー</button>
     </section>
@@ -302,8 +308,6 @@
       </section>
       <hr />
       <section>
-        <p><label for="imageFile"></label>
-          <input id="imageFile" type="file" accept="image/*"/></p>
           <img id="img" alt=""/><br>
           <label for="imageScale">倍率</label>
           <input id="imageScale" type="range" value="100" min="20" max="500" step="any" list="scales"><br>
@@ -469,7 +473,10 @@
         window.addEventListener("DOMContentLoaded", () => {
           
           document.querySelector('#btnCopy').addEventListener('click', copyToClipboard);
-          
+          document.querySelector('#btnFileOpen').addEventListener('click', () => {
+            document.querySelector('#imageFile').click();
+          });
+
           const canvas = document.querySelector('#bg-layer');
           const slider = document.querySelector('#imageScale');
           const crop = document.querySelector('#crop-layer');
