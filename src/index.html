@@ -13,21 +13,32 @@
     @media screen and (max-width=500) {
       
     }
-    
+
+    /*
+      root
+    ==================================================================== */
+    :root {
+      --base-color:#b7c8c2;
+      --main-color: white;
+      --accent-color: red;
+      --button-color: orange;
+      font-size: 1rem;
+    }
+
     .inline {
       display: inline-block;
     }
     
     /*
-    header
+      header
     ==================================================================== */
     header {
       position: sticky;
       margin-top: 0px;
       z-index: 999;
       top: 0;
-      background: #b7c8c2;
-      color: #fff;
+      background: var(--base-color);
+      color: var(--main-color);
     }
     
     header h1 {
@@ -46,7 +57,7 @@
     
     #menu button {
       line-height: 3em;
-      background: orange;
+      background: var(--button-color);
       border-radius: 8px;
       margin: 0 auto;
       max-width: 100%;
@@ -136,7 +147,7 @@
     #overlay { 
       z-index: 3;
       position: absolute;
-      border: 2px solid #F00;
+      border: 2px solid var(--accent-color);
     }
     
     .background-layer
@@ -157,7 +168,7 @@
       margin-left: 1rem;
       margin-right: 1rem;
       position: absolute;
-      border: 4px solid #F00;
+      border: 4px solid var(--accent-color);
       border-radius: 8px;
       width: auto;
     }
@@ -193,7 +204,7 @@
       /* display: inline-block; */
       display: none;
       line-height: 3em;
-      background: orange;
+      background: var(--button-color);
       border-radius: 8px;
       width: 96px;
       margin: 0 auto;
@@ -204,7 +215,7 @@
     ==================================================================== */
     .accordion-item {
       max-width: 95%;
-      background-color: #f0f5f9;
+      background-color: var(--main-color);
     }
     
     .accordion-item:not([open]) {
@@ -218,8 +229,8 @@
       position: relative;
       padding: 1em 1em;
       border-radius: 8px;
-      background-color: #b7c8c2;
-      color: #fff;
+      background-color: var(--base-color);
+      color: var(--main-color);
       font-weight: 600;
       cursor: pointer;
     }
@@ -233,8 +244,8 @@
       width: 8px;
       height: 8px;
       margin-left: 16px;
-      border-bottom: 4px solid #fff;
-      border-right: 4px solid #fff;
+      border-bottom: 4px solid var(--main-color);
+      border-right: 4px solid var(--main-color);
       content: '';
       transition: transform .3s;
     }
